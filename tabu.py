@@ -7,13 +7,13 @@ L = 20
 gamma = 10
 K = 1000
 
-vii = 17.7532
-emboss = 2.2561
-muse = 13.3726
-night = 21.4743
-blur = 6.1478
-wave = 9.4748
-onnx = 3.9887
+vii = 17.3270
+emboss = 2.2013
+muse = 13.3265
+night = 21.2220
+blur = 5.9509
+wave = 9.2330
+onnx = 3.8556
 
 x0 = [30, 29, 23, 10, 9, 14, 13, 12, 4, 20, 
       22, 3, 27, 28, 8, 7, 19, 21, 26, 18, 
@@ -208,7 +208,7 @@ def ConvertCSVs(gamma, L):
     i = 0 
     for g in gamma:
         for l in L:
-            list_to_csv(f'Schedule Gamma={g}, L={l}.csv', schedules[i])
+            list_to_csv(f'tabu_gamma={g}_L={l}.csv', schedules[i])
             i += 1
 
 gamma = [1, 2, 5, 10, 15, 20]
