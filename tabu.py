@@ -1,9 +1,19 @@
 from collections import deque   
+import csv
+import numpy as np
 
 # Initial Parameters
 L = 20
 gamma = 10
 K = 1000
+
+vii = 17.7532
+emboss = 2.2561
+muse = 13.3726
+night = 21.4743
+blur = 6.1478
+wave = 9.4748
+onnx = 3.9887
 
 x0 = [30, 29, 23, 10, 9, 14, 13, 12, 4, 20, 
       22, 3, 27, 28, 8, 7, 19, 21, 26, 18, 
@@ -15,6 +25,11 @@ d = {1: 172, 2: 82, 3: 18, 4: 61, 5: 93, 6: 71,
       17: 233, 18: 77, 19: 88, 20: 122, 21: 71, 
       22: 181, 23: 340, 24: 141, 25: 209, 26: 217, 
       27: 256, 28: 144, 29: 307, 30: 329, 31: 269}
+
+p_real = {1: onnx, 2: muse, 3: emboss, 4: emboss, 5: blur, 6: emboss, 7: vii, 8: blur, 
+     9: wave, 10: blur, 11: blur, 12: emboss, 13: onnx, 14: onnx, 15: blur, 
+     16: wave, 17: wave, 18: wave, 19: emboss, 20: onnx, 21: emboss, 22: onnx, 23: vii, 
+     24: blur, 25: night, 26: muse, 27: emboss, 28: onnx, 29: wave, 30: emboss, 31: muse}
 
 p = {1: 3, 2: 10, 3: 2, 4: 2, 5: 5, 6: 2, 7: 14, 8: 5, 
      9: 6, 10: 5, 11: 5, 12: 2, 13: 3, 14: 3, 15: 5, 
@@ -58,7 +73,7 @@ G = {(1, 31): 1, (2, 1): 1, (3, 8): 1, (4, 3): 1, (5, 2): 1, (6, 16): 1,
 #     return alphas    
 
 
-def TabuSearch(G, p, d, x0, L, gamma, K):
+def TabuSearch(DAG, x0, g, params, L, gamma, K):
     """
     docstring
     """
@@ -69,10 +84,11 @@ def TabuSearch(G, p, d, x0, L, gamma, K):
     # Initialization
     k = 0 
     tabu_list = deque([], L)
+    tabu_list_index = deque([], L)
     accepted_solutions = []
     
     # Assume initial schedule x0 is a valid schedule
-    g_best = CalculateTotalTardiness(x0, p, d)
+    g_best = g(x0, params)
     accepted_solutions.append((x0.copy(), g_best))
 
     cursor = 0 
@@ -80,39 +96,56 @@ def TabuSearch(G, p, d, x0, L, gamma, K):
     # Local search algorithm
     for k in range(K):
         swap_flag = False 
-        g_xk = CalculateTotalTardiness(x0, p, d)
+        g_xk = g(x0, params)
         for _ in range(len(x0)):
-            if (x0[cursor],x0[cursor+1]) not in G:
+            if (x0[cursor],x0[cursor+1]) not in DAG:
                 y = x0[:cursor] + [x0[cursor+1], x0[cursor]] + x0[cursor+2:]  
-                g_y = CalculateTotalTardiness(y, p, d)
-                delta = g_xk - g_y
-                if (delta > -gamma and (tuple(sorted([x0[cursor], x0[cursor+1]]))) not in tabu_list) or g_y < g_best:
+                g_y = g(y, params)
+                delta = g_xk - g_y 
+                if (delta > -gamma and tuple(sorted([x0[cursor], x0[cursor+1]])) not in tabu_list) or g_y < g_best:
                     x0 = y
                     g_best = min(g_y, g_best)
                     accepted_solutions.append((y, g_y))
-                    tabu_list.append((tuple(sorted([x0[cursor], x0[cursor+1]])), k))
+                    if tuple(sorted([x0[cursor], x0[cursor+1]])) not in tabu_list:
+                        tabu_list.append(tuple(sorted([x0[cursor], x0[cursor+1]])))
+                        tabu_list_index.append(k)
                     swap_flag = True
             cursor = (cursor + 1) % (len(x0)-1)
             if swap_flag:
                 break
         
-        if k - tabu_list[0][1] > L:
+        # We might not need this since it implicitly removes the oldest entry
+        # However, if g_y < g_best and is tabu, then the tabu_list size will -1 since we still have to remove the oldest pair, right? 
+        if k - tabu_list_index[0] > L:
             tabu_list.popleft() 
+            tabu_list_index.popleft()
+
+        # Each iteration, we add one pair to the tabu list. 
+        # But if it's tabu and strictly less than, we need to add it to the list again? 
+        # Can do, but we need to change its index to the new k. 
 
         if not swap_flag:
             break
+
+    # Removing max size to tabu_list reduces cost to 182, but tabu list is now size 21 rather than 20, violation.
+    # for x in accepted_solutions:
+    #         print(x)
     
 
-    print(list(filter(lambda x: x[1] == g_best, accepted_solutions)))
+    # print(list(filter(lambda x: x[1] == g_best, accepted_solutions)))
 
-    print(tabu_list)
+    # print(tabu_list_index)
+    # print(len(tabu_list))
     return min(accepted_solutions, key=lambda x: x[1])
 
 
-def CalculateTotalTardiness(x, p, d):
+def CalculateTotalTardiness(x, params):
     """
     docstring
     """
+    p = params[0]
+    d = params[1]
+
     C_i = 0
     tardiness = 0
     for i in range(len(x)):
@@ -121,5 +154,66 @@ def CalculateTotalTardiness(x, p, d):
 
     return tardiness
 
-TabuSearch(G, p, d, x0, L, gamma, K)
+def CalculateTotalWeighedTardiness(x, params):
+    """
+    docstring
+    """
+    p = params[0]
+    d = params[1]
+    w = params[2]
+
+    C_i = 0
+    weighted_tardiness = 0 
+    for i in range(len(x)):
+        C_i += p.get(x[i])
+        weighted_tardiness += w.get(x[i]) * max(0, C_i - d.get(x[i]))
+
+    print(C_i)
+    return weighted_tardiness
+
 # print(TabuSearch(G, p, d, x0, L, gamma, K))
+
+# G = {} 
+# p = {1:10, 2:10, 3:13, 4:4}
+# d = {1:4, 2:2, 3:1, 4:12}
+# w = {1:14, 2:12, 3:1, 4:12}
+# x0 = [2,1,4,3]
+
+# print(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], L, gamma, K))
+    
+    #Random i swaps 
+    #i's valid swaps 
+    #check graph for feasibility 
+
+def Experiments(gamma, L):
+
+    results = []
+
+    for g in gamma:
+        for l in L:
+            print(f"Testing Tabu with Gamma={g} and L={l}")
+            results.append(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], l, g, K))
+
+    return results
+
+def ConvertCSVs(gamma, L):
+    
+    schedules = [list(np.array(s)-1) for s, _ in Experiments(gamma, L)]
+
+    def list_to_csv(filename, integer_list):
+        with open(filename, 'w', newline='') as csvfile:
+            csv_writer = csv.writer(csvfile, delimiter=',')
+            csv_writer.writerow(integer_list)
+
+    i = 0 
+    for g in gamma:
+        for l in L:
+            list_to_csv(f'Schedule Gamma={g}, L={l}.csv', schedules[i])
+            i += 1
+
+gamma = [1, 2, 5, 10, 15, 20]
+L = [1, 10, 15, 20, 25, 30]
+ConvertCSVs(gamma, L)
+
+def VNSSearch(DAG, x0, g, params, K, N):
+    raise NotImplementedError
