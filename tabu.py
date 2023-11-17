@@ -1,11 +1,12 @@
 from collections import deque   
 import csv
-import numpy as np
+import random
 
 # Initial Parameters
 L = 20
 gamma = 10
 K = 1000
+I = 10 
 
 vii = 17.3270
 emboss = 2.2013
@@ -43,6 +44,8 @@ G = {(1, 31): 1, (2, 1): 1, (3, 8): 1, (4, 3): 1, (5, 2): 1, (6, 16): 1,
      (22, 21): 1, (23, 22): 1, (24, 5): 1, (25, 24): 1, (26, 25): 1, 
      (27, 26): 1, (28, 26): 1, (29, 28): 1, (30, 4): 1, (30, 10): 1, 
      (30, 14): 1, (30, 20): 1, (30, 23): 1, (29, 27): 1, (30, 29): 1}
+
+random.seed(5)
 
 
 # def FindAlpha(G, i, alphas, N):
@@ -101,6 +104,7 @@ def TabuSearch(DAG, x0, g, params, L, gamma, K):
             if (x0[cursor],x0[cursor+1]) not in DAG:
                 y = x0[:cursor] + [x0[cursor+1], x0[cursor]] + x0[cursor+2:]  
                 g_y = g(y, params)
+                print(f'Iteration {k}: currently considering feasible solution {y} with cost {g_y}')
                 delta = g_xk - g_y 
                 if (delta > -gamma and tuple(sorted([x0[cursor], x0[cursor+1]])) not in tabu_list) or g_y < g_best:
                     x0 = y
@@ -191,7 +195,8 @@ def Experiments(gamma, L):
 
     for g in gamma:
         for l in L:
-            print(f"Testing Tabu with Gamma={g} and L={l}")
+            print(f"Testing Tabu Gamma={g} L={l}")
+            print(f"Best result: {TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], l, g, K)}")
             results.append(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], l, g, K))
 
     return results
@@ -211,9 +216,68 @@ def ConvertCSVs(gamma, L):
             list_to_csv(f'tabu_gamma={g}_L={l}.csv', schedules[i])
             i += 1
 
-gamma = [1, 2, 5, 10, 15, 20]
-L = [1, 10, 15, 20, 25, 30]
-ConvertCSVs(gamma, L)
+# gamma = [1, 2, 5, 10, 15, 20]
+# L = [1, 10, 15, 20, 25, 30]
+# ConvertCSVs(gamma, L)
+# Experiments(gamma, L)
 
-def VNSSearch(DAG, x0, g, params, K, N):
-    raise NotImplementedError
+# ANSWER FOR QUESTION 2.1 
+# print(TabuSearch(G, x0, CalculateTotalTardiness, [p, d], L, gamma, K))
+
+# Question 3 R-VNS Search
+def VNSSearch(DAG, x0, g, params, K, N, I, N_params):
+
+    k = 0 
+    x = x0
+    g_best = 0
+
+    while k <= K:
+        i = 1 
+        while i <= I:
+            y = N(DAG, x, i, N_params)
+            g_y = g(y, params)
+            # print(f'Iteration {k} with max {i} swaps: currently considering feasible solution {y} with cost {g_y}')
+            if g_y < g(x, params): 
+                x = y 
+                g_best = g_y
+                break 
+            else:
+                i += 1 
+        k += 1 
+
+    return x, g_best
+
+
+def checkFeasibility(DAG, x, swapped_idx):
+    return (x[swapped_idx], x[swapped_idx+1]) not in DAG
+
+
+def getSwapIndex(DAG, x): 
+    idx = random.randint(0, len(x)-2)
+    while not checkFeasibility(DAG, x, idx):
+        idx = random.randint(0, len(x)-2)
+    return idx
+
+def N(DAG, x, i, N_params=None): 
+    y = x
+    N_swaps = random.randint(1, i)
+    for i in range(N_swaps):
+        idx = getSwapIndex(DAG, y)
+        y = y[:idx] + [y[idx+1], y[idx]] + y[idx+2:]  
+    
+    return y 
+
+
+def N_refined(DAG, x, i, N_params):
+    g, g_params = N_params[0], N_params[1]
+    y = N(DAG, x, i)
+    
+    N_last_search_steps = 1
+    y2 = N(DAG, y, N_last_search_steps)
+    
+    if g(y2, g_params) < g(y, g_params):
+        y = y2 
+    
+    return y 
+
+print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N, len(x0), [CalculateTotalTardiness, [p, d]]))
