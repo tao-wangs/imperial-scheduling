@@ -138,17 +138,17 @@ def calculateTotalWeightedTardiness(x, params):
     Given a schedule x and list of processing times, due dates and weights, 
     calculates the total weighted tardiness of the schedule. 
     """
-    
+
     p, d, w = params[0], params[1], params[2]
 
     C_i = 0
-    wT_sum = 0
+    wt_sum = 0
 
     for i in range(len(x)):
-        Ci += p.get(x[i])
-        wT_sum += w.get(x[i]) * max(0, ci - d.get(x[i]))
+        C_i += p.get(x[i])
+        wt_sum += w.get(x[i]) * max(0, C_i - d.get(x[i]))
 
-    return wT_sum
+    return wt_sum
 
 
 def solveTutorial3Problem7():
