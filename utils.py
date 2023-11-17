@@ -1,11 +1,17 @@
-from constants import *  
 import csv
 
 
 def calculateTotalTardiness(x, params):
     """
     Given a schedule x and list of processing times and due dates, 
-    calculates the total tardiness of the schedule. 
+    calculates the total tardiness of the schedule.
+
+    Inputs:
+        x           -- A list representing a schedule 
+        params      -- A list of parameters containing processing times and due dates of nodes
+
+    Outputs:
+        T_sum       -- Total tardiness
     """
 
     p = params[0]
@@ -20,13 +26,15 @@ def calculateTotalTardiness(x, params):
     return T_sum
 
 
-def convertListToCSV(filename, integer_list):
+def convertScheduleToCSV(filename, schedule):
     """
-    Given a schedule of jobs as a list, converts schedule to a csv file.
+    Given a list representing a schedule, converts schedule to a csv file.
+
+    Inputs:
+        filename    -- String representing the name of the .csv file 
+        schedule    -- A list of integers representing the schedule 
     """
 
     with open(filename, 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',')
-        csv_writer.writerow(integer_list)
-
-
+        csv_writer.writerow(schedule)

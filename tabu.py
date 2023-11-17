@@ -2,7 +2,7 @@ import numpy as np
 
 from collections import deque   
 from constants import *
-from utils import calculateTotalTardiness, convertListToCSV
+from utils import calculateTotalTardiness, convertScheduleToCSV
 
 
 def tabuSearch(DAG, x0, g, params, L, gamma, K):
@@ -34,7 +34,7 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
     # Initialisation 
     k = 0 
     accepted_solutions = []
-    
+
     # Assume initial schedule x0 is always a valid schedule
     g_best = g(x0, params)
     accepted_solutions.append((x0.copy(), g_best))
@@ -52,7 +52,7 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
         # Search neighbourhood of xk in positional order, starting from cursor index 
         for _ in range(len(x0)):
             # Check if adjacent interchange violates precendences
-            if (x0[cursor],x0[cursor+1]) not in DAG:    
+            if (x0[cursor], x0[cursor+1]) not in DAG:    
                 y = x0[:cursor] + [x0[cursor+1], x0[cursor]] + x0[cursor+2:]  
                 g_y = g(y, params)
                 delta = g_xk - g_y 
@@ -87,7 +87,7 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
         if not swap_flag:
             break
     
-    # Retrive the best schedule found which corresponds to the lowest cost g_best
+    # Retrieve the best schedule found which corresponds to the lowest cost g_best
     return min(accepted_solutions, key=lambda x: x[1])
 
 
@@ -128,17 +128,17 @@ def createTabuExperimentCSVs(gamma_list, L_list):
     i = 0 
     for g in gamma:
         for l in L:
-            convertListToCSV(f'tabu_gamma={g}_L={l}.csv', schedules[i])
+            convertScheduleToCSV(f'tabu_gamma={g}_L={l}.csv', schedules[i])
             i += 1
 
 
 if __name__ == '__main__':
-    #Q2.1
+    # Q2.1
     print('Answer for Question 2.1:')
     S, cost = tabuSearch(DAG, x0, calculateTotalTardiness, [p, d], L, gamma, K)
     print(f'Optimal schedule found is\n{S}\nwith total tardiness {cost}\n')
     
-    #Q2.2
+    # Q2.2
     print('Answer for Question 2.2:')
     gamma_list = [1, 2, 5, 10, 15, 20]
     L_list = [1, 10, 15, 20, 25, 30]

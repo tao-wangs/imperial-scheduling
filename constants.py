@@ -1,9 +1,8 @@
 
 # Define constants for Coursework Question 2.1
 L = 20          # Maximum tabu list size
-gamma = 10      # Gamma 
+gamma = 10      # Acceptance threshold  
 K = 1000        # Maximum number of iterations
-
 
 # Incidence matrix of the DAG in the form of a dictionary, according to Appendix A
 DAG = {(1, 31): 1, (2, 1): 1, (3, 8): 1, (4, 3): 1, (5, 2): 1, (6, 16): 1, 
@@ -43,8 +42,3 @@ p_real = {1: onnx, 2: muse, 3: emboss, 4: emboss, 5: blur, 6: emboss, 7: vii, 8:
 
 # Define maximum neighbourhood generation level for VNS
 I = len(x0)
-
-
-
-
-
