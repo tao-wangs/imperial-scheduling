@@ -2,10 +2,10 @@ import numpy as np
 
 from collections import deque   
 from constants import *
-from utils import calculateTotalTardiness, convertScheduleToCSV
+from utils import *
 
 
-def tabuSearch(DAG, x0, g, params, L, gamma, K):
+def tabuSearch(DAG, x0, g, g_params, L, gamma, K):
     """
     Generic implementation of a tabu search algorithm for the 1|prec|g(.) problem.
     
@@ -18,8 +18,8 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
     Inputs:
         DAG      -- A dictionary representing the incidence matrix of the direct acyclic graph.
         x0       -- A list containing the initial schedule solution, assumed to always be valid.
-        g        -- A cost function (regular measure) for tabu search algorithm to minimise.
-        params   -- A list containing parameters for the regular measure function.
+        g        -- A cost function (regular measure) for tabu search algorithm to optimise.
+        g_params -- A list containing input parameters for the cost function.
         L        -- The maximum size of the tabu list.
         gamma    -- The acceptance threshold for a neighborhood solution.
         K        -- The maximum number of iterations.
@@ -36,7 +36,7 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
     accepted_solutions = []
 
     # Assume initial schedule x0 is always a valid schedule
-    g_best = g(x0, params)
+    g_best = g(x0, g_params)
     accepted_solutions.append((x0.copy(), g_best))
 
     tabu_list = deque([], L)
@@ -47,14 +47,14 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
 
     for k in range(K):
         swap_flag = False 
-        g_xk = g(x0, params)
+        g_xk = g(x0, g_params)
         
         # Search neighbourhood of xk in positional order, starting from cursor index 
         for _ in range(len(x0)):
             # Check if adjacent interchange violates precendences
-            if (x0[cursor], x0[cursor+1]) not in DAG:    
+            if checkFeasibility(DAG, x0, cursor):    
                 y = x0[:cursor] + [x0[cursor+1], x0[cursor]] + x0[cursor+2:]  
-                g_y = g(y, params)
+                g_y = g(y, g_params)
                 delta = g_xk - g_y 
                 
                 # Accept current solution if delta is above acceptance threshold and not adjacent interchange is not 
@@ -87,7 +87,7 @@ def tabuSearch(DAG, x0, g, params, L, gamma, K):
         if not swap_flag:
             break
     
-    # Retrieve the best schedule found which corresponds to the lowest cost g_best
+    # Retrieve the current best schedule corresponding to the lowest cost g_best
     return min(accepted_solutions, key=lambda x: x[1])
 
 
