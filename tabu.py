@@ -190,7 +190,9 @@ def CalculateTotalWeighedTardiness(x, params):
     #check graph for feasibility 
 
 def Experiments(gamma, L):
-
+    """
+    
+    """
     results = []
 
     for g in gamma:
@@ -201,14 +203,15 @@ def Experiments(gamma, L):
 
     return results
 
-def ConvertCSVs(gamma, L):
-    
-    schedules = [list(np.array(s)-1) for s, _ in Experiments(gamma, L)]
+def list_to_csv(filename, integer_list):
+    with open(filename, 'w', newline='') as csvfile:
+        csv_writer = csv.writer(csvfile, delimiter=',')
+        csv_writer.writerow(integer_list)
 
-    def list_to_csv(filename, integer_list):
-        with open(filename, 'w', newline='') as csvfile:
-            csv_writer = csv.writer(csvfile, delimiter=',')
-            csv_writer.writerow(integer_list)
+def ConvertCSVs(gamma, L):
+    """
+    """
+    schedules = [list(np.array(s)-1) for s, _ in Experiments(gamma, L)]
 
     i = 0 
     for g in gamma:
@@ -226,6 +229,8 @@ def ConvertCSVs(gamma, L):
 
 # Question 3 R-VNS Search
 def VNSSearch(DAG, x0, g, params, K, N, I, N_params):
+    """
+    """
 
     k = 0 
     x = x0
@@ -272,7 +277,7 @@ def N_refined(DAG, x, i, N_params):
     g, g_params = N_params[0], N_params[1]
     y = N(DAG, x, i)
     
-    N_last_search_steps = 1
+    N_last_search_steps = 150
     y2 = N(DAG, y, N_last_search_steps)
     
     if g(y2, g_params) < g(y, g_params):
@@ -280,4 +285,6 @@ def N_refined(DAG, x, i, N_params):
     
     return y 
 
-print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N, len(x0), [CalculateTotalTardiness, [p, d]]))
+# list_to_csv(f'q3_VNS_schedule.csv', VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])[0])
+# print(VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])
+print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N_refined, len(x0), [CalculateTotalTardiness, [p, d]]))
