@@ -1,16 +1,15 @@
-from collections import deque   
-import csv
-import random
 import numpy as np
+
+from collections import deque   
 from constants import *
-from utils import calculateTotalTardiness
+from utils import calculateTotalTardiness, convertListToCSV
 
 
-def TabuSearch(DAG, x0, g, params, L, gamma, K):
+def tabuSearch(DAG, x0, g, params, L, gamma, K):
     """
     Generic implementation of a tabu search algorithm for the 1|prec|g(.) problem.
     
-    Local search rules are implemented according to the instructions from Tutorial Sheet 3:
+    Local search rules are implemented according to the instructions from Tutorial Problem Sheet 3:
     - We use an aspiration criterion that always accepts a solution g(y) if g(y) < g_best, even if tabu.
     - We consider adjacent interchanges in positional order. 
     - We increment cyclically the position of the adjacent interchange. 
@@ -72,7 +71,7 @@ def TabuSearch(DAG, x0, g, params, L, gamma, K):
                     swap_flag = True
 
             # Increment the cursor cyclically such that if adjacent interchange indexes (len(xk)-2, len(xk)-1) was 
-            # considered at iteration k, at iteration k+1 the cursor will consider adjacent interchange (0, 1)
+            # considered at iteration k, at iteration k+1 the cursor will consider adjacent interchange indexes (0, 1)
             cursor = (cursor+1) % (len(x0)-1)
             
             # Jump to iteration k+1 if we have found an accepted solution
@@ -95,11 +94,11 @@ def TabuSearch(DAG, x0, g, params, L, gamma, K):
 def tabuExperiments(gamma_list, L_list):
     """
     Given two lists of gamma and L values, generates an optimal schedule for each combination of gamma and L\
-    using the tabu search implementation.
+    using the tabu search implementation and real processing times obtained from `gettimes.py`.
 
     Inputs:
-        gamma_list  -- A list of gamma values 
-        L_list      -- A list of L values 
+        gamma_list  -- A list of gamma values to vary
+        L_list      -- A list of L values to vary 
 
     Outputs:
         schedules   -- A list of (schedule, cost) tuples for each combination of gamma and L
@@ -109,14 +108,19 @@ def tabuExperiments(gamma_list, L_list):
 
     for g in gamma_list:
         for l in L_list:
-            schedules.append(TabuSearch(DAG, x0, calculateTotalTardiness, [p_real, d], l, g, K))
+            schedules.append(tabuSearch(DAG, x0, calculateTotalTardiness, [p_real, d], l, g, K))
 
     return schedules
 
 
 def createTabuExperimentCSVs(gamma_list, L_list):
     """
-    Given a list of gamma and L values, generates an optimal schedule for each combination of gamma and L as a csv file. 
+    Given lists of gamma and L values, generates an optimal schedule for each combination of gamma and L 
+    and converts the schedules to .csv files in order to run on the Azure VM. 
+
+    Inputs:
+        gamma_list  -- A list of gamma values to vary 
+        L_list      -- A list of L values to vary 
     """
 
     schedules = [list(np.array(s)-1) for s, _ in tabuExperiments(gamma_list, L_list)]
@@ -124,14 +128,14 @@ def createTabuExperimentCSVs(gamma_list, L_list):
     i = 0 
     for g in gamma:
         for l in L:
-            utils.convertListToCSV(f'tabu_gamma={g}_L={l}.csv', schedules[i])
+            convertListToCSV(f'tabu_gamma={g}_L={l}.csv', schedules[i])
             i += 1
 
 
 if __name__ == '__main__':
     #Q2.1
     print('Answer for Question 2.1:')
-    S, cost = TabuSearch(DAG, x0, calculateTotalTardiness, [p, d], L, gamma, K)
+    S, cost = tabuSearch(DAG, x0, calculateTotalTardiness, [p, d], L, gamma, K)
     print(f'Optimal schedule found is\n{S}\nwith total tardiness {cost}\n')
     
     #Q2.2
