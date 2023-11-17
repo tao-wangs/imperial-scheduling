@@ -45,35 +45,7 @@ G = {(1, 31): 1, (2, 1): 1, (3, 8): 1, (4, 3): 1, (5, 2): 1, (6, 16): 1,
      (27, 26): 1, (28, 26): 1, (29, 28): 1, (30, 4): 1, (30, 10): 1, 
      (30, 14): 1, (30, 20): 1, (30, 23): 1, (29, 27): 1, (30, 29): 1}
 
-random.seed(5)
-
-
-# def FindAlpha(G, i, alphas, N):
-#     """
-#     docstring
-#     """
-#     max_alpha = 0
-#     for j in range(N+1):
-#         if (i,j) in G:
-#             max_alpha = max(max_alpha, alphas.get(j, FindAlpha(G, j, alphas, N)))
-    
-#     alphas[i] = max_alpha + 1
-
-#     return alphas[i]
-
-
-# def AssignAlphas(G, alphas):
-#     """
-#     docstring
-#     """
-
-#     N = max([item for sublist in G.keys() for item in sublist])
-
-#     for i in range(N+1):
-#         if i not in alphas:
-#             FindAlpha(G, i, alphas, N)
-
-#     return alphas    
+random.seed(5) 
 
 
 def TabuSearch(DAG, x0, g, params, L, gamma, K):
@@ -143,37 +115,41 @@ def TabuSearch(DAG, x0, g, params, L, gamma, K):
     return min(accepted_solutions, key=lambda x: x[1])
 
 
-def CalculateTotalTardiness(x, params):
+def calculateTotalTardiness(x, params):
     """
-    docstring
+    Given a schedule x and list of processing times and due dates, 
+    calculates the total tardiness of the schedule. 
     """
+
     p = params[0]
     d = params[1]
 
     C_i = 0
-    tardiness = 0
+    T_sum = 0
     for i in range(len(x)):
         C_i += p.get(x[i])
-        tardiness += max(0, C_i - d.get(x[i]))
+        T_sum += max(0, C_i - d.get(x[i]))
 
-    return tardiness
+    return T_sum
 
-def CalculateTotalWeighedTardiness(x, params):
+
+def calculateTotalWeightedTardiness(x, params):
     """
-    docstring
+    Given a schedule x and list of processing times, due dates and weights, 
+    calculates the total weighted tardiness of the schedule. 
     """
-    p = params[0]
-    d = params[1]
-    w = params[2]
+    
+    p, d, w = params[0], params[1], params[2]
 
     C_i = 0
-    weighted_tardiness = 0 
-    for i in range(len(x)):
-        C_i += p.get(x[i])
-        weighted_tardiness += w.get(x[i]) * max(0, C_i - d.get(x[i]))
+    wT_sum = 0
 
-    print(C_i)
-    return weighted_tardiness
+    for i in range(len(x)):
+        Ci += p.get(x[i])
+        wT_sum += w.get(x[i]) * max(0, ci - d.get(x[i]))
+
+    return wT_sum
+
 
 def solveTutorial3Problem7():
     """
@@ -191,7 +167,7 @@ def solveTutorial3Problem7():
 
     x0 = [2,1,4,3]
 
-    return TabuSearch(G, x0, CalculateTotalWeighedTardiness, [p, d, w], L, gamma, K)
+    return TabuSearch(G, x0, calculateTotalWeightedTardiness, [p, d, w], L, gamma, K)
 
 
 def solveTutorial3Problem8a():
@@ -210,9 +186,9 @@ def solveTutorial3Problem8a():
     
     x0 = [4,2,1,3]
 
-    return TabuSearch(G, x0, CalculateTotalWeighedTardiness, [p, d, w], L, gamma, K)
+    return TabuSearch(G, x0, calculateTotalWeightedTardiness, [p, d, w], L, gamma, K)
 
-# print(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], L, gamma, K))
+# print(TabuSearch(G, x0, calculateTotalTardiness, [p_real, d], L, gamma, K))
     
     #Random i swaps 
     #i's valid swaps 
@@ -227,8 +203,8 @@ def Experiments(gamma, L):
     for g in gamma:
         for l in L:
             print(f"Testing Tabu Gamma={g} L={l}")
-            print(f"Best result: {TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], l, g, K)}")
-            results.append(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], l, g, K))
+            print(f"Best result: {TabuSearch(G, x0, calculateTotalTardiness, [p_real, d], l, g, K)}")
+            results.append(TabuSearch(G, x0, calculateTotalTardiness, [p_real, d], l, g, K))
 
     return results
 
@@ -254,7 +230,7 @@ L = [1, 10, 15, 20, 25, 30]
 Experiments(gamma, L)
 
 # ANSWER FOR QUESTION 2.1 
-# print(TabuSearch(G, x0, CalculateTotalTardiness, [p, d], L, gamma, K))
+# print(TabuSearch(G, x0, calculateTotalTardiness, [p, d], L, gamma, K))
 
 # Question 3 R-VNS Search
 def VNSSearch(DAG, x0, g, params, K, N, I, N_params):
@@ -314,6 +290,34 @@ def N_refined(DAG, x, i, N_params):
     
     return y 
 
-# list_to_csv(f'q3_VNS_schedule.csv', VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])[0])
-# print(VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])
-# print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N_refined, len(x0), [CalculateTotalTardiness, [p, d]]))
+# list_to_csv(f'q3_VNS_schedule.csv', VNSSearch(G, x0, calculateTotalTardiness, [p_real, d], K, N, len(x0), [])[0])
+# print(VNSSearch(G, x0, calculateTotalTardiness, [p_real, d], K, N, len(x0), [])
+# print(VNSSearch(G, x0, calculateTotalTardiness, [p, d], K, N_refined, len(x0), [calculateTotalTardiness, [p, d]]))
+
+
+# def FindAlpha(G, i, alphas, N):
+#     """
+#     docstring
+#     """
+#     max_alpha = 0
+#     for j in range(N+1):
+#         if (i,j) in G:
+#             max_alpha = max(max_alpha, alphas.get(j, FindAlpha(G, j, alphas, N)))
+    
+#     alphas[i] = max_alpha + 1
+
+#     return alphas[i]
+
+
+# def AssignAlphas(G, alphas):
+#     """
+#     docstring
+#     """
+
+#     N = max([item for sublist in G.keys() for item in sublist])
+
+#     for i in range(N+1):
+#         if i not in alphas:
+#             FindAlpha(G, i, alphas, N)
+
+#     return alphas   
