@@ -104,7 +104,7 @@ def TabuSearch(DAG, x0, g, params, L, gamma, K):
             if (x0[cursor],x0[cursor+1]) not in DAG:
                 y = x0[:cursor] + [x0[cursor+1], x0[cursor]] + x0[cursor+2:]  
                 g_y = g(y, params)
-                print(f'Iteration {k}: currently considering feasible solution {y} with cost {g_y}')
+                # print(f'Iteration {k}: currently considering feasible solution {y} with cost {g_y}')
                 delta = g_xk - g_y 
                 if (delta > -gamma and tuple(sorted([x0[cursor], x0[cursor+1]])) not in tabu_list) or g_y < g_best:
                     x0 = y
@@ -175,13 +175,42 @@ def CalculateTotalWeighedTardiness(x, params):
     print(C_i)
     return weighted_tardiness
 
-# print(TabuSearch(G, p, d, x0, L, gamma, K))
+def solveTutorial3Problem7():
+    """
+    Solves Problem 7 of Tutorial Sheet 3 to verify correctness of Tabu search algorithm implementation.
+    """
 
-# G = {} 
-# p = {1:10, 2:10, 3:13, 4:4}
-# d = {1:4, 2:2, 3:1, 4:12}
-# w = {1:14, 2:12, 3:1, 4:12}
-# x0 = [2,1,4,3]
+    G = {}  # Problem does not involve precedences
+    p = {1:10, 2:10, 3:13, 4:4}
+    d = {1:4, 2:2, 3:1, 4:12}
+    w = {1:14, 2:12, 3:1, 4:12}
+
+    L = 2
+    gamma = 100 
+    K = 3 
+
+    x0 = [2,1,4,3]
+
+    return TabuSearch(G, x0, CalculateTotalWeighedTardiness, [p, d, w], L, gamma, K)
+
+
+def solveTutorial3Problem8a():
+    """
+    Solves Problem 8a of Tutorial Sheet 3 to verify correctness of Tabu search algorithm implementation.
+    """
+
+    G = {}  # Problem does not involve precedences
+    p = {1:16, 2:11, 3:4, 4:8}
+    d = {1:1, 2:2, 3:7, 4:9}
+    w = {1:3, 2:4, 3:5, 4:7}
+
+    L = 2
+    gamma = 20 
+    K = 4
+    
+    x0 = [4,2,1,3]
+
+    return TabuSearch(G, x0, CalculateTotalWeighedTardiness, [p, d, w], L, gamma, K)
 
 # print(TabuSearch(G, x0, CalculateTotalTardiness, [p_real, d], L, gamma, K))
     
@@ -219,10 +248,10 @@ def ConvertCSVs(gamma, L):
             list_to_csv(f'tabu_gamma={g}_L={l}.csv', schedules[i])
             i += 1
 
-# gamma = [1, 2, 5, 10, 15, 20]
-# L = [1, 10, 15, 20, 25, 30]
+gamma = [1, 2, 5, 10, 15, 20]
+L = [1, 10, 15, 20, 25, 30]
 # ConvertCSVs(gamma, L)
-# Experiments(gamma, L)
+Experiments(gamma, L)
 
 # ANSWER FOR QUESTION 2.1 
 # print(TabuSearch(G, x0, CalculateTotalTardiness, [p, d], L, gamma, K))
@@ -287,4 +316,4 @@ def N_refined(DAG, x, i, N_params):
 
 # list_to_csv(f'q3_VNS_schedule.csv', VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])[0])
 # print(VNSSearch(G, x0, CalculateTotalTardiness, [p_real, d], K, N, len(x0), [])
-print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N_refined, len(x0), [CalculateTotalTardiness, [p, d]]))
+# print(VNSSearch(G, x0, CalculateTotalTardiness, [p, d], K, N_refined, len(x0), [CalculateTotalTardiness, [p, d]]))
