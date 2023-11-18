@@ -1,38 +1,36 @@
 # Project Title
 
-Workflow Scheduling Coursework - ps1620, tw520 
+70068 - Workflow Scheduling Coursework Solution  
 
-## Table of Contents
+## Authors
 
-- [Introduction](#introduction)
-- [Features](#filesincluded)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
+The following individuals contributed to this coursework:
 
+- [Purin Sukpanichnant](ps1620)
+- [Tao Wang](tw520) 
 
 ## Introduction
 
-This folder contains all the implemented code for the 70068 - Scheduling and Resource Allocation coursework. 
+This folder contains all the implemented code and printouts for the 70068 - Scheduling and Resource Allocation coursework. 
 
 ## Files Included
 
-- `tabu.py`: Contains the implementation of the Tabu Search algorithm.
-- `vns.py`: Contains the implementation of the Reduced Variable Neighborhood Search algorithm.
-- `utils.py`: Includes utility functions or helper methods used in the algorithms.
-- `test.py`: Contains test cases or examples demonstrating the usage of the implemented algorithms.
-- `constants.py`: Holds constant values or configurations used in the algorithms.
+- `tabu.py`: Contains the full implementation of the Tabu Search algorithm, methods for experimentation and solutions to Question 2.
+- `vns.py`: Contains the full implementation of the Reduced Variable Neighbourhood Search algorithm, neighbourhood generation functions and solutions to Question 3.
+- `utils.py`: Contains helper methods used in the tabu search and VNS algorithms.
+- `constants.py`: Contains the global constant values for computing solutions to Question 2 and 3. Values are corresponding to 
+Appendix A and B in the coursework specification, as well as experimental values obtained from Azure VM.    
+- `test.py`: Contains test cases for verifying the correctness of the Tabu Search algorithm implementation. 
+- `tabu_output.txt`: Printout of the execution of the Tabu Search algorithm. Shows the current solution considered at each iteration of the Tabu Search method and their cost.
+- `vns_output.txt`: Printout of the execution of the Reduced Variable Neighbourhood Search algorithm. Shows the current solution considered at each iteration of the VNS method and their cost.
 
-## Usage
+### Question 2 (`tabu.py`)
 
-### Tabu Search (`tabu.py`)
+`python tabu.py`
 
-Describe how to use the Tabu Search algorithm implemented in `tabu.py`. Include examples, usage instructions, and any required input/output details.
 
-### Variable Neighborhood Search (`vns.py`)
+### Question 3 (`vns.py`)
 
-Explain how to use the Variable Neighborhood Search algorithm implemented in `vns.py`. Provide examples, instructions, and details on how to input parameters or data.
+`python vns.py`
 
 ### Utilities (`utils.py` and `constants.py`)
-
-Detail the utility functions, helper methods, or constants provided in these files and how they contribute to the algorithms' functionality.
