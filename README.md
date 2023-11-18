@@ -13,6 +13,9 @@ The following individuals contributed to this coursework:
 
 This folder contains all the implemented code and printouts for the 70068 - Scheduling and Resource Allocation coursework. 
 
+## Folder Included
+- `schedules`: Contains all the CSV files used for experiments in Question 2 and 3, and a shell script to convert all the CSV files to json format and run on Azure VM.
+
 ## Files Included
 
 - `tabu.py`: Contains the full implementation of the Tabu Search algorithm, methods for experimentation and solutions to Question 2.
