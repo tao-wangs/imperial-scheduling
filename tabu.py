@@ -57,8 +57,8 @@ def tabuSearch(DAG, x0, g, g_params, L, gamma, K):
                 g_y = g(y, g_params)
                 delta = g_xk - g_y 
                 
-                # Accept current solution if delta is above acceptance threshold and not adjacent interchange is not 
-                # in the tabu list, or aspiration criteria is satisfied
+                # Accept new solution if delta is above acceptance threshold and this new solution's adjacent interchange is not 
+                # already in the tabu list, or aspiration criteria is satisfied
                 if (delta > -gamma and tuple(sorted([x0[cursor], x0[cursor+1]])) not in tabu_list) or g_y < g_best:
                     x0 = y
                     g_best = min(g_y, g_best)
