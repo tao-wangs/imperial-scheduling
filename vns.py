@@ -10,7 +10,7 @@ def VNSSearch(DAG, x0, g, g_params, K, N, I, N_params):
     Generic implementation of a reduced VNS algorithm for the 1|prec|g(.) problem.
 
     Inputs:
-        DAG        -- A dictionary representing the incidence matrix of the direct acyclic graph.
+        DAG        -- A dictionary representing the incidence matrix of the directed acyclic graph.
         x0         -- A list containing the initial schedule solution, assumed to always be valid.
         g          -- A cost function (regular measure) for the VNS search algorithm to optimise.
         g_params   -- A list containing input parameters for the cost function.
@@ -48,7 +48,7 @@ def genSwapIndex(DAG, x):
     Generates a feasible swap index randomly.
 
     Inputs:
-        DAG  -- A dictionary representing the incidence matrix of the direct acyclic graph
+        DAG  -- A dictionary representing the incidence matrix of the directed acyclic graph
         x    -- A list representing a schedule 
     
     Outputs:
@@ -72,7 +72,7 @@ def genNeighbour(DAG, x, i, N_params=None):
     and apply a feasible adjacent interchange (y[idx], y[idx+1]) to the current solution y.    
 
     Inputs:
-        DAG        -- A dictionary representing the incidence matrix of the direct acyclic graph
+        DAG        -- A dictionary representing the incidence matrix of the directed acyclic graph
         x          -- A list representing a schedule 
         i          -- Maximum number of random adjacent interchanges permitted 
         N_params   -- A list containing supplementary input parameters for the neighbourhood 
@@ -101,7 +101,7 @@ def genNeighbourExtension(DAG, x, i, N_params):
     update y with this solution instead, prior to making the comparison g(y) >= g(x).      
 
     Inputs:
-        DAG        -- A dictionary representing the incidence matrix of the direct acyclic graph
+        DAG        -- A dictionary representing the incidence matrix of the directed acyclic graph
         x          -- A list representing a schedule 
         i          -- Maximum number of random adjacent interchanges permitted 
         N_params   -- A list containing the cost function to optimize, cost function parameters
