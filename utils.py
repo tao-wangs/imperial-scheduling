@@ -3,12 +3,12 @@ import csv
 
 def checkFeasibility(DAG, x, swap_idx):
     """
-    Checks if the adjacent interchange indexes being considered does not violate precendence rules. 
+    Checks that the adjacent interchange indexes being considered does not violate precendence rules. 
 
     Inputs:
-        DAG        -- A dictionary representing the incidence matrix of the direct acyclic graph
+        DAG        -- A dictionary representing the incidence matrix of the directed acyclic graph
         x          -- A list representing a schedule 
-        swap_idx   -- Starting index of adjacent interchange indexes (swap_idx, swap_idx+1) 
+        swap_idx   -- Starting index of adjacent interchange indices (swap_idx, swap_idx+1) 
 
     Outputs:
         A boolean value for whether the edge is not in the directed acyclic graph.
